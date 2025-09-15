@@ -1,0 +1,4 @@
+# Copy isi file ini ke Environment Variables di Render
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+SPREADSHEET_ID=your_spreadsheet_id_here
+GOOGLE_CREDS_JSON={"type":"service_account","project_id":"...."}  # copy isi credentials.json
