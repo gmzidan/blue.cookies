@@ -1,5 +1,19 @@
 # Jangan upload file rahasia
-credentials.json
 .env
+credentials.json
+
+# File Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+ENV/
+.env/
+.venv/
+
+# File log atau data sementara
+*.log
+*.sqlite3
