@@ -32,35 +32,30 @@ def get_updates(offset=None):
     return r.json()
 
 # --- Fungsi simpan pesan ke Sheet ---
-def save_message(msg):
-    user = msg.get("from", {})
-    text = msg.get("text", "")
-    ts = datetime.utcfromtimestamp(msg.get("date")).strftime("%Y-%m-%d %H:%M:%S")
+def handle_message(update, context):
+    text = update.message.text
+    username = update.message.from_user.username or "unknown"
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    row = [
-        ts,
-        user.get("id"),
-        user.get("username", ""),
-        text
-    ]
+    parts = text.split(" ", 2)  # pisah jadi max 3 bagian
+    if len(parts) < 2:
+        update.message.reply_text("Format salah! Gunakan: pendapatan 5000 keterangan")
+        return
 
-    sheet.append_row(row, value_input_option="RAW")
-    print("Tersimpan:", row)
+    tipe = parts[0].lower()
+    if tipe not in ["pendapatan", "pengeluaran"]:
+        update.message.reply_text("Tipe harus 'pendapatan' atau 'pengeluaran'")
+        return
 
-# --- Main loop polling ---
-def main():
-    print("Bot started (polling)...")
-    offset = None
-    while True:
-        try:
-            updates = get_updates(offset)
-            for upd in updates.get("result", []):
-                offset = upd["update_id"] + 1
-                if "message" in upd:
-                    save_message(upd["message"])
-        except Exception as e:
-            print("Error:", e)
-            time.sleep(5)
+    jumlah = parts[1]
+    keterangan = parts[2] if len(parts) > 2 else ""
 
-if __name__ == "__main__":
-    main()
+    # susun row sesuai tabel
+    row = [timestamp, tipe.capitalize(), jumlah, keterangan, username]
+
+    try:
+        sheet.append_row(row)
+        update.message.reply_text("✅ Data berhasil disimpan!")
+    except Exception as e:
+        update.message.reply_text("❌ Gagal menyimpan ke Google Sheets")
+        print("Error:", e)
